@@ -4,6 +4,51 @@ import * as THREE from 'three'
 import { CameraHelper } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import connect from "./Connect.js";
+import { mode } from '../webpack.config';
+
+// import anurag from "./img/anurag.png"
+// import abhay from './img/abhay.png'
+// import abhinav from './img/abhinav.png'
+// import anshika from './img/anshika.png'
+// import apoorv from './img/apoorv.png'
+// import deghpreet from './img/deghpreet.png'
+// import jess from './img/jess.png'
+// import jivraj from './img/jivraj.png'
+
+const imageList =[
+  '/img/jess.png',
+  '/img/abhay.png',
+  '/img/anurag.png',
+  '/img/abhinav.png',
+  '/img/anshika.png',
+  '/img/apoorv.png',
+  '/img/deghpreet.png',
+  '/img/jivraj.png',
+]
+// const imageList =[
+//   jess,
+//   abhay,
+//   anurag,
+//   abhinav,
+//   anshika,
+//   apoorv,
+//   deghpreet,
+//   jivraj
+// ]
+const openSeaURL =[
+  'https://opensea.io/assets/matic/0x2953399124f0cbb46d2cbacd8a89cf0599974963/104206034018960734157227822297469707953732132324313266366585641666534577274881',
+  'https://opensea.io/assets/matic/0x2953399124f0cbb46d2cbacd8a89cf0599974963/104206034018960734157227822297469707953732132324313266366585641667634088902657',
+  'https://opensea.io/assets/matic/0x2953399124f0cbb46d2cbacd8a89cf0599974963/104206034018960734157227822297469707953732132324313266366585641668733600530433',
+  'https://opensea.io/assets/matic/0x2953399124f0cbb46d2cbacd8a89cf0599974963/104206034018960734157227822297469707953732132324313266366585641674231158669313',
+  'https://opensea.io/assets/matic/0x2953399124f0cbb46d2cbacd8a89cf0599974963/104206034018960734157227822297469707953732132324313266366585641673131647041537',
+  'https://opensea.io/assets/matic/0x2953399124f0cbb46d2cbacd8a89cf0599974963/104206034018960734157227822297469707953732132324313266366585641669833112158209',
+  'https://opensea.io/assets/matic/0x2953399124f0cbb46d2cbacd8a89cf0599974963/104206034018960734157227822297469707953732132324313266366585641672032135413761',
+  'https://opensea.io/assets/matic/0x2953399124f0cbb46d2cbacd8a89cf0599974963/104206034018960734157227822297469707953732132324313266366585641675330670297089'
+]
+
+// custom global variables
+var targetList = [];
 
 // SCENE
 const scene = new THREE.Scene();
@@ -36,6 +81,29 @@ light()
 // FLOOR
 generateFloor()
 
+// WEB3
+
+connect.then((result) => {
+    // console.log(result);
+    result.buildings.forEach( (b:any, index:any) => {
+      if (index <= result.supply) {
+        // const jeffTexture = new THREE.TextureLoader().load('./img/abhay.png');
+        const jeffTexture = new THREE.TextureLoader().load(imageList[index-1]);
+        const boxGeometry = new THREE.BoxGeometry(b.w, b.h, b.d);
+        // const boxMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+        // const box = new THREE.Mesh(boxGeometry, boxMaterial);
+        const box = new THREE.Mesh(
+                    boxGeometry, 
+                    new THREE.MeshBasicMaterial({ map: jeffTexture })
+                    );
+        box.position.set(b.x, b.y, b.z);
+        box.userData = { URL: openSeaURL[index-1]};
+        targetList.push(box);
+        scene.add(box);
+     }
+    });
+  });
+
 // MODEL WITH ANIMATIONS
 var characterControls: CharacterControls
 new GLTFLoader().load('models/Soldier.glb', function (gltf) {
@@ -54,6 +122,47 @@ new GLTFLoader().load('models/Soldier.glb', function (gltf) {
 
     characterControls = new CharacterControls(model, mixer, animationsMap, orbitControls, camera,  'Idle')
 });
+
+new GLTFLoader().load('models/Flamingo.glb', function (gltf) {
+    const model = gltf.scene;
+    model.scale.set(0.03,0.03,0.03)
+    model.position.set(6,5,-4)
+
+    scene.add(model);
+});
+
+new GLTFLoader().load('models/SheenChair.glb', function (gltf) {
+    const model = gltf.scene;
+    model.scale.set(1.2,1.2,1.2)
+    model.position.set(3,0,-4)
+
+    scene.add(model);
+});
+
+new GLTFLoader().load('models/Horse.glb', function (gltf) {
+    const model = gltf.scene;
+    model.scale.set(.01,.01,.01)
+    model.position.set(9,0,-4)
+    model.rotateY(2)
+
+    scene.add(model);
+});
+
+new GLTFLoader().load('models/Xbot.glb', function (gltf) {
+    const model = gltf.scene;
+    // model.scale.set(.01,.01,.01)
+    model.position.set(8,5,8)
+    model.rotateY(2)
+    scene.add(model);
+    });
+
+    new GLTFLoader().load('models/collision-world.glb', function (gltf) {
+    const model = gltf.scene;
+    model.scale.set(2,2,2)
+    model.position.set(6,0,9)
+    model.rotateY(2)
+    scene.add(model);
+    });
 
 // CONTROL KEYS
 const keysPressed = {  }
